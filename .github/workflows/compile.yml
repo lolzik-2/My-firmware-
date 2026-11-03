@@ -42,7 +42,7 @@ jobs:
             --fqbn m5stack:esp32:m5stack_cardputer \
             --build-property build.partitions=huge_app \
             --build-property upload.maximum_size=3145728 \
-            --build-property compiler.cpp.extra_flags="-Wl,--allow-multiple-definition" \
+            --build-property compiler.c.elf.extra_flags="-Wl,--allow-multiple-definition" \
             --output-dir ./build \
             .
 
