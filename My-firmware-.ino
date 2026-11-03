@@ -98,12 +98,16 @@ uint8_t  ble_spam_mode = 0;
 NimBLEAdvertising* pBLEAdvertising = nullptr;
 
 // ═══════════════════════════════════════════
-// 3. Проверки клавиш
+// 3. Проверки клавиш (совместимо с std::vector<char>)
 // ═══════════════════════════════════════════
 bool check_next_press() {
   if (M5Cardputer.Keyboard.isChange() && M5Cardputer.Keyboard.isPressed()) {
     auto status = M5Cardputer.Keyboard.keysState();
-    if (status.fn && status.word.find('.') != status.word.end()) return true;
+    if (status.fn) {
+      for (char c : status.word) {
+        if (c == '.') return true;
+      }
+    }
   }
   return false;
 }
@@ -111,7 +115,11 @@ bool check_next_press() {
 bool check_prev_press() {
   if (M5Cardputer.Keyboard.isChange() && M5Cardputer.Keyboard.isPressed()) {
     auto status = M5Cardputer.Keyboard.keysState();
-    if (status.fn && status.word.find(';') != status.word.end()) return true;
+    if (status.fn) {
+      for (char c : status.word) {
+        if (c == ';') return true;
+      }
+    }
   }
   return false;
 }
@@ -119,7 +127,10 @@ bool check_prev_press() {
 bool check_select_press() {
   if (M5Cardputer.Keyboard.isChange() && M5Cardputer.Keyboard.isPressed()) {
     auto status = M5Cardputer.Keyboard.keysState();
-    if (status.enter || status.word.find('/') != status.word.end()) return true;
+    if (status.enter) return true;
+    for (char c : status.word) {
+      if (c == '/') return true;
+    }
   }
   return false;
 }
@@ -127,8 +138,11 @@ bool check_select_press() {
 bool check_back_press() {
   if (M5Cardputer.Keyboard.isChange() && M5Cardputer.Keyboard.isPressed()) {
     auto status = M5Cardputer.Keyboard.keysState();
-    if ((status.fn && status.word.find('`') != status.word.end()) || status.esc)
-      return true;
+    if (status.fn) {
+      for (char c : status.word) {
+        if (c == '`') return true;
+      }
+    }
   }
   return false;
 }
@@ -443,7 +457,7 @@ void ir_jam_loop() {
 }
 
 // ═══════════════════════════════════════════
-// 10. TV-B-Gone (6) — исправлено на 32-битные NEC
+// 10. TV-B-Gone (6)
 // ═══════════════════════════════════════════
 void tvbg_setup() {
   irSender.begin();
@@ -489,13 +503,13 @@ void tvbg_loop() {
 }
 
 // ═══════════════════════════════════════════
-// 11. BLE Spam (7)
+// 11. BLE Spam (7) — совместимо с NimBLE 2.5.2
 // ═══════════════════════════════════════════
 void ble_spam_setup() {
   NimBLEDevice::init("BLE Spam");
   NimBLEDevice::setPower(ESP_PWR_LVL_P9);
   pBLEAdvertising = NimBLEDevice::getAdvertising();
-  pBLEAdvertising->setAdvertisementType(BLE_GAP_CONN_MODE_NON);
+  // setAdvertisementType удалён — в NimBLE 2.5.2 метод отсутствует
   ble_spam_active = true;
   last_ble_spam_ms = 0;
   ble_spam_mode = 0;
